@@ -88,7 +88,7 @@ namespace ETbot {
                         //Console.WriteLine(entityUpdate.guid + ": " + entityUpdate.name);
                     }
 
-                    if (players[entityUpdate.guid].name.ToLower() == "@blackrock") {
+                    if (false && players[entityUpdate.guid].name.ToLower() == "²@blackrock") {
                         maloxGuid = entityUpdate.guid;
                         var opplayer = new EntityUpdate();
                         var x = players[entityUpdate.guid].position.x - players[personalGuid].position.x;
@@ -175,25 +175,6 @@ namespace ETbot {
                         else {
                             drops[k] = chunkItemData.droppedItems;
                         }
-                    }
-                    foreach (var mission in serverUpdate.missions) {
-                        Console.WriteLine(mission.sectionX);
-                        Console.WriteLine(mission.sectionY);
-                        Console.WriteLine(mission.unknownA);
-                        Console.WriteLine(mission.unknownB);
-                        Console.WriteLine(mission.unknownC);
-                        Console.WriteLine(mission.id);
-                        Console.WriteLine(mission.unknownD);
-                        Console.WriteLine(mission.monsterID);
-                        Console.WriteLine(mission.level);
-                        Console.WriteLine(mission.unknownE);
-                        Console.WriteLine((int)mission.state);
-                        Console.WriteLine(mission.padding);
-                        Console.WriteLine(mission.unknownF);
-                        Console.WriteLine(mission.unknownG);
-                        Console.WriteLine(mission.chunkX);
-                        Console.WriteLine(mission.chunkY);
-                        Console.WriteLine();
                     }
                     break;
                 #endregion
