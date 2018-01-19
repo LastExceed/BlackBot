@@ -1,0 +1,3 @@
+[submodule "BlackBot/CubeworldNetworking"]
+	path = BlackBot/CubeworldNetworking
+	url = https://github.com/LastExceed/CubeworldNetworking.git
