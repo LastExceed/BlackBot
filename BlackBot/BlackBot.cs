@@ -21,7 +21,11 @@ namespace ETbot {
         static long maloxGuid;
         static byte[] firespammers = new byte[1024];
         static string previousMessage;
-        static Dictionary<long, List<ServerUpdate.ChunkItems.DroppedItem>> drops = new Dictionary<long, List<ServerUpdate.ChunkItems.DroppedItem>>();
+        struct Chunk{
+            public int x;
+            public int y;
+        }
+        static Dictionary<Chunk, List<ServerUpdate.ChunkItems.DroppedItem>> drops = new Dictionary<Chunk, List<ServerUpdate.ChunkItems.DroppedItem>>();
         static string password;
 
         public static void Connect(string hostname, int port, string pw) {
@@ -140,40 +144,45 @@ namespace ETbot {
                 #endregion
                 case 2:
                     #region complete
-                    new EntityUpdate() {
+                    var antiTimeout = new EntityUpdate() {
+                        guid = personalGuid,
                         lastHitTime = (int)swLasthittime.ElapsedMilliseconds
-                    }.Write(writer);
+                    };
+                    antiTimeout.Write(writer);
                     break;
                 #endregion
                 case 4:
                     #region serverupdate
                     var serverUpdate = new ServerUpdate(reader);
                     foreach (var hit in serverUpdate.hits) {
+                        if (hit.damage > 500f && players[hit.attacker].entityClass == EntityClass.Rogue) {
+                            SendMessage("/kick #" + hit.attacker + " shuriken glitch (black_bot)");
+                        }
                         if (hit.target == personalGuid) {
+                            Console.WriteLine(hit.damage);
                             swLasthittime.Restart();
+                            if (players[personalGuid].HP <= 0) return;
                             players[personalGuid].HP -= hit.damage / 2;
                             var life = new EntityUpdate() {
                                 guid = personalGuid,
                                 HP = players[personalGuid].HP,
-                                lastHitTime = (int)swLasthittime.ElapsedMilliseconds
+                                //lastHitTime = (int)swLasthittime.ElapsedMilliseconds
                             };
-
                             life.Write(writer);
-
                             if (players[personalGuid].HP <= 0) {
                                 SendMessage("/firework");
-                                life.HP = 3000f;
+                                life.HP = players[personalGuid].HP = 3000f;
                                 life.Write(writer);
                             }
                         }
                     }
                     foreach (var chunkItemData in serverUpdate.chunkItems) {
-                        long k = chunkItemData.chunkX * 0x100000000 + chunkItemData.chunkY;
-                        if (!drops.ContainsKey(k)) {
-                            drops.Add(k, chunkItemData.droppedItems);
+                        var c = new Chunk() { x = chunkItemData.chunkX, y = chunkItemData.chunkY };
+                        if (!drops.ContainsKey(c)) {
+                            drops.Add(c, chunkItemData.droppedItems);
                         }
                         else {
-                            drops[k] = chunkItemData.droppedItems;
+                            drops[c] = chunkItemData.droppedItems;
                         }
                     }
                     break;
@@ -223,24 +232,23 @@ namespace ETbot {
                                 SendMessage("no permission");
                             }
                             break;
-                        //case ".clear":
-                        //    foreach (var kvp in drops) {
-                        //        for (int i = 0; i < kvp.Value.Count; i++) {
-                        //            int x = (int)(kvp.Key / 0x100000000);
-                        //            var pickup = new EntityAction() {
-                        //                type = ActionType.pickup,
-                        //                chunkX = x,
-                        //                chunkY = (int)(kvp.Key - x * 0x100000000),
-                        //                index = i,
-                        //                item = kvp.Value[i].item,
-                        //            };
-                        //            pickup.Write(writer);
-                        //            pickup.Write(writer);
-                        //            Console.WriteLine("#");
-                        //        }
-                        //    }
-                        //    SendMessage(".\n\n\n\n\n\n\n\n\n\n.");
-                        //    break;
+                        case ".clear":
+                            foreach (var kvp in drops) {
+                                for (int i = 0; i < kvp.Value.Count; i++) {
+                                    var pickup = new EntityAction() {
+                                        type = ActionType.pickup,
+                                        chunkX = kvp.Key.x,
+                                        chunkY = kvp.Key.y,
+                                        index = i,
+                                        item = kvp.Value[i].item,
+                                    };
+                                    pickup.Write(writer);
+                                    pickup.Write(writer);
+                                    //Console.WriteLine("#");
+                                }
+                            }
+                            //SendMessage(".\n\n\n\n\n\n\n\n\n\n.");
+                            break;
 
                         case ".items":
                             #region items
@@ -252,12 +260,13 @@ namespace ETbot {
                             bool fullyGeared = true;
                             var pl = players[sender];
                             for (int i = 1; i < 9; i++) {
-                                if (pl.equipment[i].level < pl.level) {
+                                if (pl.equipment[i].level < pl.level || pl.equipment[i].rarity != ItemRarity.legendary) {
                                     fullyGeared = false;
+                                    Console.Beep();
                                     break;
                                 }
                             }
-                            fullyGeared = pl.equipment[10].type != 0 && pl.equipment[11].type != 0;
+                            if (pl.equipment[10].type == 0 || pl.equipment[11].type == 0) fullyGeared = false;
                             if (fullyGeared) {
                                 SendMessage("/pm #" + chatMessage.sender + " you already have maximum gear, don't spam items.");
                                 break;
@@ -462,7 +471,8 @@ namespace ETbot {
                                         subtype = 19,//1,
                                         material = 0,
                                         level = 1,
-                                    }
+                                    },
+                                    
                                 };
                                 for (int i = 0; i < 25; i++) {
                                     for (int j = 0; j < 25; j++) {
@@ -501,12 +511,11 @@ namespace ETbot {
                         case ".ping":
                             SendMessage("pong!");
                             break;
+
                         default:
                             break;
                     }
-                    if (chatMessage.message.Contains("change") && chatMessage.message.Contains("team") && chatMessage.sender != personalGuid) {
-                        SendMessage("./team_join red/blue");
-                    }
+                    if (chatMessage.message.Contains("change") && chatMessage.message.Contains("team") && chatMessage.sender != personalGuid) SendMessage("./team_join red/blue");
                     break;
                 #endregion
                 case 15:
@@ -673,7 +682,7 @@ namespace ETbot {
                     players.Add(personalGuid, playerstats);
 
                     SendMessage("/login " + password);
-                    SendMessage("online (version 3.0)");
+                    SendMessage("online (version 3.3.1)");
                     SendMessage("/trail 0 0 0");
                     break;
                 #endregion
