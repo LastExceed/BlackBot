@@ -56,7 +56,7 @@ namespace ETbot {
                     if (players.ContainsKey(entityUpdate.guid)) {
                         var previous = players[entityUpdate.guid];
                         if (entityUpdate.modeTimer == 0) {
-                            if ((entityUpdate.mode == Mode.fireexplosion_after || (entityUpdate.mode == null && previous.mode == Mode.fireexplosion_after)) && previous.modeTimer < 1000) {
+                            if ((entityUpdate.mode == Mode.FireExplosion_After || (entityUpdate.mode == null && previous.mode == Mode.FireExplosion_After)) && previous.modeTimer < 1000) {
                                 firespammers[entityUpdate.guid]++;
                                 switch (firespammers[entityUpdate.guid]) {
                                     case 1://nothing
@@ -114,7 +114,7 @@ namespace ETbot {
                                 particles = 1f,
                                 mana = 1f,
                                 scale = 5f,
-                                projectile = ProjectileType.arrow,
+                                projectile = ProjectileType.Arrow,
                             };
                             shoot.position.x = players[maloxGuid].position.x + (long)(players[maloxGuid].rayHit.x * 0x10000);
                             shoot.position.y = players[maloxGuid].position.y + (long)(players[maloxGuid].rayHit.y * 0x10000);
@@ -236,7 +236,7 @@ namespace ETbot {
                             foreach (var kvp in drops) {
                                 for (int i = 0; i < kvp.Value.Count; i++) {
                                     var pickup = new EntityAction() {
-                                        type = ActionType.pickup,
+                                        type = ActionType.PickUp,
                                         chunkX = kvp.Key.x,
                                         chunkY = kvp.Key.y,
                                         index = i,
@@ -260,7 +260,7 @@ namespace ETbot {
                             bool fullyGeared = true;
                             var pl = players[sender];
                             for (int i = 1; i < 9; i++) {
-                                if (pl.equipment[i].level < pl.level || pl.equipment[i].rarity != ItemRarity.legendary) {
+                                if (pl.equipment[i].level < pl.level || pl.equipment[i].rarity != ItemRarity.Legendary) {
                                     fullyGeared = false;
                                     Console.Beep();
                                     break;
@@ -287,7 +287,7 @@ namespace ETbot {
                                 items.Add(new Item() {
                                     type = (ItemType)i,
                                     modifier = rng.Next(0x7FFFFFFF),
-                                    rarity = ItemRarity.legendary,
+                                    rarity = ItemRarity.Legendary,
                                     level = (short)players[sender].level
                                 });
                             }
@@ -304,7 +304,7 @@ namespace ETbot {
                                             type = ItemType.Weapon,
                                             material = ItemMaterial.Iron,
                                             modifier = rng.Next(0x7FFFFFFF),
-                                            rarity = ItemRarity.legendary,
+                                            rarity = ItemRarity.Legendary,
                                             level = (short)players[sender].level
                                         });
                                     }
@@ -326,7 +326,7 @@ namespace ETbot {
                                             type = ItemType.Weapon,
                                             material = ItemMaterial.Wood,
                                             modifier = rng.Next(0x7FFFFFFF),
-                                            rarity = ItemRarity.legendary,
+                                            rarity = ItemRarity.Legendary,
                                             level = (short)players[sender].level
                                         });
                                     }
@@ -344,7 +344,7 @@ namespace ETbot {
                                             type = ItemType.Weapon,
                                             material = (ItemMaterial)rng.Next(11, 12),
                                             modifier = rng.Next(0x7FFFFFFF),
-                                            rarity = ItemRarity.legendary,
+                                            rarity = ItemRarity.Legendary,
                                             level = (short)players[sender].level
                                         });
                                     }
@@ -365,7 +365,7 @@ namespace ETbot {
                                             type = ItemType.Weapon,
                                             material = ItemMaterial.Iron,
                                             modifier = rng.Next(0x7FFFFFFF),
-                                            rarity = ItemRarity.legendary,
+                                            rarity = ItemRarity.Legendary,
                                             level = (short)players[sender].level
                                         });
                                     }
@@ -383,12 +383,12 @@ namespace ETbot {
                             }
 
                             items.Add(new Item {
-                                type = ItemType.special,
+                                type = ItemType.Special,
                                 material = ItemMaterial.Wood,
                             });
 
                             var drop = new EntityAction {
-                                type = ActionType.drop
+                                type = ActionType.Drop
                             };
                             foreach (var that in items) {
                                 drop.item = that;
@@ -465,9 +465,9 @@ namespace ETbot {
                                 };
 
                                 var dropperino = new EntityAction {
-                                    type = ActionType.drop,
+                                    type = ActionType.Drop,
                                     item = new Item() {
-                                        type = ItemType.petFood,//1,
+                                        type = ItemType.PetFood,//1,
                                         subtype = 19,//1,
                                         material = 0,
                                         level = 1,
@@ -638,40 +638,40 @@ namespace ETbot {
                         };
                     }
                     var e = playerstats.equipment;
-                    e[1].type = ItemType.amulet;
+                    e[1].type = ItemType.Amulet;
                     e[1].modifier = 3;
-                    e[1].rarity = ItemRarity.legendary;
+                    e[1].rarity = ItemRarity.Legendary;
                     e[1].material = ItemMaterial.Silver;
                     e[1].level = 647;
 
-                    e[2].type = ItemType.chest;
+                    e[2].type = ItemType.Chest;
                     e[2].modifier = 63;
-                    e[2].rarity = ItemRarity.epic;
+                    e[2].rarity = ItemRarity.Epic;
                     e[2].material = ItemMaterial.Iron;
                     e[2].level = 647;
 
-                    e[3].type = ItemType.boots;
+                    e[3].type = ItemType.Boots;
                     e[3].modifier = 63;
-                    e[3].rarity = ItemRarity.legendary;
+                    e[3].rarity = ItemRarity.Legendary;
                     e[3].material = ItemMaterial.Iron;
                     e[3].level = 647;
 
-                    e[4].type = ItemType.gloves;
+                    e[4].type = ItemType.Gloves;
                     e[4].modifier = 0;
-                    e[4].rarity = ItemRarity.legendary;
+                    e[4].rarity = ItemRarity.Legendary;
                     e[4].material = ItemMaterial.Iron;
                     e[4].level = 647;
 
-                    e[5].type = ItemType.shoulder;
+                    e[5].type = ItemType.Shoulder;
                     e[5].modifier = 84;
-                    e[5].rarity = ItemRarity.epic;
+                    e[5].rarity = ItemRarity.Epic;
                     e[5].material = ItemMaterial.Iron;
                     e[5].level = 647;
 
                     e[6].type = ItemType.Weapon;
                     e[6].subtype = 2;
                     e[6].modifier = -67;
-                    e[6].rarity = ItemRarity.epic;
+                    e[6].rarity = ItemRarity.Epic;
                     e[6].material = ItemMaterial.Iron;
                     e[6].level = 647;
 
@@ -682,8 +682,8 @@ namespace ETbot {
                     players.Add(personalGuid, playerstats);
 
                     SendMessage("/login " + password);
-                    SendMessage("online (version 3.3.1)");
                     SendMessage("/trail 0 0 0");
+                    SendMessage("online (version 3.3.2)");
                     break;
                 #endregion
                 case 17: //serving sending the right version if yours is wrong
