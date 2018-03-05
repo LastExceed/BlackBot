@@ -13,7 +13,7 @@ namespace ETbot {
                 try {
                     BlackBot.Connect(ip, 12345, pw);
                 }
-                catch(StackOverflowException) {
+                catch(Exception) {
                     Console.ForegroundColor = ConsoleColor.Magenta;
                     Console.WriteLine("crash");
                 }

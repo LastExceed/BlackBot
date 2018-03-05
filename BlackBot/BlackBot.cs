@@ -16,10 +16,10 @@ namespace ETbot {
         static BinaryWriter writer;
         static long personalGuid;
         static Dictionary<long, EntityUpdate> players;
-        static Stopwatch swLasthittime = new Stopwatch();
-        static Stopwatch swCooldown = new Stopwatch();
+        static Stopwatch swLasthittime;
+        static Stopwatch swCooldown;
         static long maloxGuid;
-        static byte[] firespammers = new byte[1024];
+        static byte[] firespammers;
         static string previousMessage;
         struct Chunk{
             public int x;
@@ -29,6 +29,10 @@ namespace ETbot {
         static string password;
 
         public static void Connect(string hostname, int port, string pw) {
+            swLasthittime = new Stopwatch();
+            swCooldown = new Stopwatch();
+            firespammers = new byte[1024];
+
             password = pw;
             players = new Dictionary<long, EntityUpdate>();
             connection = new TcpClient(hostname, port);
@@ -146,6 +150,7 @@ namespace ETbot {
                     #region complete
                     var antiTimeout = new EntityUpdate() {
                         guid = personalGuid,
+                        position = players[personalGuid].position,
                         lastHitTime = (int)swLasthittime.ElapsedMilliseconds
                     };
                     antiTimeout.Write(writer);
@@ -155,24 +160,27 @@ namespace ETbot {
                     #region serverupdate
                     var serverUpdate = new ServerUpdate(reader);
                     foreach (var hit in serverUpdate.hits) {
+                        if (hit.attacker == hit.target) continue;
+                        Console.WriteLine(hit.attacker + " attacked " + hit.target + " with " + hit.damage);
                         if (hit.damage > 500f && players[hit.attacker].entityClass == EntityClass.Rogue) {
                             SendMessage("/kick #" + hit.attacker + " shuriken glitch (black_bot)");
                         }
                         if (hit.target == personalGuid) {
-                            Console.WriteLine(hit.damage);
                             swLasthittime.Restart();
-                            if (players[personalGuid].HP <= 0) return;
+                            if (players[personalGuid].HP <= 0) continue;
                             players[personalGuid].HP -= hit.damage / 2;
                             var life = new EntityUpdate() {
                                 guid = personalGuid,
                                 HP = players[personalGuid].HP,
-                                //lastHitTime = (int)swLasthittime.ElapsedMilliseconds
+                                lastHitTime = (int)swLasthittime.ElapsedMilliseconds
                             };
                             life.Write(writer);
                             if (players[personalGuid].HP <= 0) {
                                 SendMessage("/firework");
                                 life.HP = players[personalGuid].HP = 3000f;
+                                life.lastHitTime = 0;
                                 life.Write(writer);
+                                swLasthittime.Restart();
                             }
                         }
                     }
@@ -222,15 +230,13 @@ namespace ETbot {
                             }.Write(writer);
                             SendMessage("/pm #" + sender + " have fun sticking to the ground for 10 seconds :P");
                             break;
-                        case ".disconnect":
-                            if (chatMessage.message == ".disconnECT") {
+                        case ".shutdown":
+                            if (chatMessage.message == ".shutdOWN") {
                                 SendMessage("goodbye");
                                 Task.Delay(250).Wait();
                                 Environment.Exit(0);
                             }
-                            else {
-                                SendMessage("no permission");
-                            }
+                            else SendMessage("no permission");
                             break;
                         case ".clear":
                             foreach (var kvp in drops) {
@@ -244,7 +250,6 @@ namespace ETbot {
                                     };
                                     pickup.Write(writer);
                                     pickup.Write(writer);
-                                    //Console.WriteLine("#");
                                 }
                             }
                             //SendMessage(".\n\n\n\n\n\n\n\n\n\n.");
@@ -262,7 +267,6 @@ namespace ETbot {
                             for (int i = 1; i < 9; i++) {
                                 if (pl.equipment[i].level < pl.level || pl.equipment[i].rarity != ItemRarity.Legendary) {
                                     fullyGeared = false;
-                                    Console.Beep();
                                     break;
                                 }
                             }
@@ -409,7 +413,7 @@ namespace ETbot {
                             SendMessage("hi " + players[sender].name + "! I am a computer controlled player, created by Malox and @Blackrock. I can do various stuff, type .commands for more");
                             break;
                         case ".commands":
-                            SendMessage(".info .commands .items .countdown come_here .stun_me .69");
+                            SendMessage(".info .commands .items .countdown come_here .stun_me .69 .restart .come_here");
                             break;
                         case ".countdown":
                             Task.Factory.StartNew(Countdown);
@@ -488,6 +492,10 @@ namespace ETbot {
                             }
                             break;
 
+                        case ".restart":
+                            SendMessage("I'll be right back");
+                            throw new Exception();
+
                         case ".boost":
                             if (chatMessage.message == ".bOOst") {
                                 var dayum = new Hit {
@@ -529,9 +537,9 @@ namespace ETbot {
                     personalGuid = join.guid;
                     var playerstats = new EntityUpdate() {
                         position = new LongVector() {
-                            x = 550102697999,//8020800000,
-                            y = 550369924955,//8020800000,
-                            z = 11342970,
+                            x = 550299161554,//8020800000,
+                            y = 550289388106,//8020800000,
+                            z = 6296719,
                         },
                         rotation = new FloatVector(),
                         velocity = new FloatVector(),
@@ -683,7 +691,7 @@ namespace ETbot {
 
                     SendMessage("/login " + password);
                     SendMessage("/trail 0 0 0");
-                    SendMessage("online (version 3.3.2)");
+                    SendMessage("online (version 3.4.1)");
                     break;
                 #endregion
                 case 17: //serving sending the right version if yours is wrong
