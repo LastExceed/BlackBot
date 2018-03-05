@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -26,7 +27,7 @@ namespace BlackBot {
                 WebSocketProvider = Discord.Net.Providers.WS4Net.WS4NetProvider.Instance
             });
             _handler = new CommandHandler(_client);
-            await _client.LoginAsync(TokenType.Bot, "NDIwMjc2OTI2MDk2MzQzMDQw.DX8VAw.wP-XLvKnkKkIHF9olwM454fXozk");
+            await _client.LoginAsync(TokenType.Bot, File.ReadAllText("DiscordToken.txt"));
             await _client.StartAsync();
             await Task.Delay(-1);
         }

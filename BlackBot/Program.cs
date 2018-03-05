@@ -1,9 +1,11 @@
 ﻿using System.IO;
 using System;
+using System.Threading;
 
-namespace ETbot {
+namespace BlackBot {
     class Program {
         static void Main(string[] args) {
+            new Thread(new ThreadStart(DiscordBot.Connect().GetAwaiter().GetResult));
             Console.Write("enter ip: ");
             string ip = Console.ReadLine();
             Console.Write("enter pw: ");

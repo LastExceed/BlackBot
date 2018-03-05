@@ -9,7 +9,7 @@ using Resources.Utilities;
 using System.Threading;
 using System.Diagnostics;
 
-namespace ETbot {
+namespace BlackBot {
     static class BlackBot {
         static TcpClient connection;
         static BinaryReader reader;
