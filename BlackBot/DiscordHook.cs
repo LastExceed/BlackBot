@@ -60,9 +60,6 @@ namespace BlackBot {
                     await context.Channel.SendMessageAsync(result.ErrorReason);
                 }
             }
-            if (msg.HasCharPrefix(':', ref argPos)) {
-                var result = await _service.ExecuteAsync(context, argPos);
-            }
         }
     }
     public class Commands : ModuleBase<SocketCommandContext> {

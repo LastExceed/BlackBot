@@ -5,7 +5,7 @@ using System.Threading;
 namespace BlackBot {
     class Program {
         static void Main(string[] args) {
-            new Thread(new ThreadStart(DiscordBot.Connect().GetAwaiter().GetResult));
+            new Thread(new ThreadStart(DiscordBot.Connect().GetAwaiter().GetResult)).Start();
             Console.Write("enter ip: ");
             string ip = Console.ReadLine();
             Console.Write("enter pw: ");
